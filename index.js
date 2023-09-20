@@ -9,6 +9,7 @@ const client = new Client({
 
 client.on('qr', (qr) => {
     qrcode.generate(qr, {small: true});
+    console.log('read qrcode');
 });
 
 client.on('ready', () => {
@@ -17,10 +18,10 @@ client.on('ready', () => {
 
 client.on('message_create', msg => {
     const command = msg.body.split(' ')[0];
-    
+
     console.log(command)
     // Cola seu número onde tem o 84848484, sem o 9
-    const sender = msg.from.includes("7488043170") ? msg.to : msg.from
+    const sender = msg.from.includes("8796046972") ? msg.to : msg.from
     if (command === "!sticker")  generateSticker(msg, sender)
     if(['@everyone','@todes','@here','@channel'].includes(msg.body) ) everyOne(msg)
 
@@ -30,13 +31,13 @@ client.initialize();
 
 const everyOne = async(msg)=> {
     const chat = await msg.getChat();
-        
+
     let text = "";
     let mentions = [];
 
     for(let participant of chat.participants) {
         const contact = await client.getContactById(participant.id._serialized);
-        
+
         mentions.push(contact);
         text += `@${participant.id.user} `;
     }
