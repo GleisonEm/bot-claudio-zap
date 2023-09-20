@@ -5,7 +5,7 @@ FROM node:18-slim
 
 # Instalação do Git
 RUN apt-get update \
-    && apt-get install -y wget gnupg git \
+    && apt-get install -y wget gnupg git apt-utils \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
     && sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
