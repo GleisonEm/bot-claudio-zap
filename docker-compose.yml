@@ -1,7 +1,7 @@
 version: "3.5"
 services:
   api: # API - Instância 01
-    image: gleisin/node-bot-zap:latest
+    image: gemanueldev/node-bot-zap:latest
     hostname: api
     # command: bash -c "npm run knex"
     expose:

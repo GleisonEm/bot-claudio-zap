@@ -5,7 +5,7 @@ up2:
 up3:
 	docker-compose -f docker-compose2.yml up -d
 build:
-	docker build . -t gleisin/node-bot-zap -f docker/Dockerfile
+	docker build . -t gemanueldev/node-bot-zap -f docker/Dockerfile
 buildUp:
-	docker build . -t gleisin/node-bot-zap -f docker/Dockerfile
+	docker build . -t gemanueldev/node-bot-zap -f docker/Dockerfile
 	docker-compose up
