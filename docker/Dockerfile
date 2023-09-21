@@ -25,6 +25,9 @@ RUN chmod -R 777 /usr/src/app
 COPY package*.json ./
 RUN npm install
 
+RUN chown -R pptruser:pptruser /usr/src/app
+RUN chmod -R 777 /usr/src/app
+
 COPY . .
 
 EXPOSE 8988
