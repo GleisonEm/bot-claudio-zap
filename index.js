@@ -1,9 +1,18 @@
 const { Client, LocalAuth, MessageMedia  } = require('whatsapp-web.js');
+const { writeFile } = require('fs');
 const qrcode = require('qrcode-terminal');
 const jimp = require('jimp')
 const axios = require('axios')
 
 const {createFile, addInList, getList, deleteFile, addRule, getRulesList, editRule} = require('./clientRepository');
+
+writeFile(`data/teste.json`, JSON.stringify(defaultFile, null, 2), (err) => {
+    if (err) {
+    console.log('Failed to write updated data to file');
+    return;
+    }
+    console.log('Updated file successfully');
+});
 
 const client = new Client({
     authStrategy: new LocalAuth(),
