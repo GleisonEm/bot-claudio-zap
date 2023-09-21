@@ -6,7 +6,7 @@ const axios = require('axios')
 
 const {createFile, addInList, getList, deleteFile, addRule, getRulesList, editRule} = require('./clientRepository');
 
-writeFile(`data/teste.json`, JSON.stringify(defaultFile, null, 2), (err) => {
+writeFile(`data/teste.json`, JSON.stringify({ title: 'pedro'}, null, 2), (err) => {
     if (err) {
     console.log('Failed to write updated data to file');
     return;
