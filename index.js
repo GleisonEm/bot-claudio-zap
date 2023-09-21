@@ -4,7 +4,8 @@ const jimp = require('jimp')
 const axios = require('axios')
 
 const client = new Client({
-    authStrategy: new LocalAuth()
+    authStrategy: new LocalAuth(),
+    puppeteer: { headless: true, args: ['--no-sandbox'] }
 });
 
 client.on('qr', (qr) => {
