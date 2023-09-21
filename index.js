@@ -8,7 +8,7 @@ const {createFile, addInList, getList, deleteFile, addRule, getRulesList, editRu
 
 writeFile(`data/teste.json`, JSON.stringify({ title: 'pedro'}, null, 2), (err) => {
     if (err) {
-    console.log('Failed to write updated data to file');
+    console.log('Failed to write updated data to file', err);
     return;
     }
     console.log('Updated file successfully');
