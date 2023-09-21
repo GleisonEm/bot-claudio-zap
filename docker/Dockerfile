@@ -18,15 +18,15 @@ USER pptruser
 
 WORKDIR /usr/src/app
 
-RUN chown -R pptruser:pptruser /usr/src/app
-RUN chmod -R 777 /usr/src/app
+# RUN chown -R pptruser:pptruser /usr/src/app
+# RUN chmod -R 777 /usr/src/app
 
 # Install app dependencies
 COPY package*.json ./
 RUN npm install
 
-RUN chown -R pptruser:pptruser /usr/src/app
-RUN chmod -R 777 /usr/src/app
+# RUN chown -R pptruser:pptruser /usr/src/app
+# RUN chmod -R 777 /usr/src/app
 
 COPY . .
 
