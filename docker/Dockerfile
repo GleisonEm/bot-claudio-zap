@@ -14,22 +14,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -r pptruser && useradd -rm -g pptruser -G audio,video pptruser
 
-USER pptruser
-
 WORKDIR /usr/src/app
-
-# RUN chown -R pptruser:pptruser /usr/src/app
-# RUN chmod -R 777 /usr/src/app
 
 # Install app dependencies
 COPY . .
 
-# RUN chown -R pptruser:pptruser /usr/src/app
-# RUN chmod -R 777 /usr/src/app
+RUN chmod 777 -R /usr/src/app/data
+
+# USER pptruser
 
 RUN npm install
-
-
 
 EXPOSE 8988
 
