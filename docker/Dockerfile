@@ -24,7 +24,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY . .
 
-RUN chown -R pptruser:pptruser /usr/src/app
+# RUN chown -R pptruser:pptruser /usr/src/app
 RUN chmod -R 777 /usr/src/app
 
 RUN npm install
