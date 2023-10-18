@@ -1,9 +1,11 @@
 const { ConverseModel } = require('../db/models/ConverseModel');
-const { MessageTypes } = require('whatsapp-web.js');
+const { MessageTypes, MessageMedia } = require('whatsapp-web.js');
 const AudioTranscriber = require('../models/AudioTranscriber');
+const { getSender } = require('../utils/utilitary');
 
 class PrivateMessage {
-    constructor() {
+    constructor(client) {
+        this.client = client
         this.states = {
             waiting: 1,
             sendMenu: 2,
@@ -15,13 +17,39 @@ class PrivateMessage {
 
     async runner(msg) {
         // const chatId = msg.from;
-        // const command = msg.body.split(' ')[0];
+        const command = msg.body.split(' ')[0];
 
         if (msg.type === MessageTypes.AUDIO || msg.type === MessageTypes.VOICE) {
+            await msg.reply("Transcrevendo audio...");
             const data = await msg.downloadMedia()
             const text = await this.audioTranscriber.run(data);
 
             await msg.reply(text);
+        }
+
+        if (command == '!sticker') {
+            const sender = getSender(msg)
+            if (msg.type === "image") {
+
+                try {
+                    const { data } = await msg.downloadMedia();
+                    const image = new MessageMedia("image/jpeg", data, "image.jpg");
+                    await this.client.sendMessage(sender, image, { sendMediaAsSticker: true });
+                } catch (e) {
+                    console.log(e)
+                    msg.reply("❌ Erro ao processar imagem");
+                }
+            } else {
+                try {
+                    const url = msg.body.substring(msg.body.indexOf(" ")).trim();
+                    const { data } = await axios.get(url, { responseType: 'arraybuffer' });
+                    const returnedB64 = Buffer.from(data).toString('base64');
+                    const image = new MessageMedia("image/jpeg", returnedB64, "image.jpg");
+                    await this.client.sendMessage(sender, image, { sendMediaAsSticker: true });
+                } catch (e) {
+                    msg.reply("❌ Não foi possível gerar um sticker com esse link");
+                }
+            }
         }
         // let currentState = await this.converseModel.getState(chatId);
         // console.log("state atual", currentState)

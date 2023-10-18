@@ -18,7 +18,7 @@ class AudioUploader {
             filename: 'audio.wav',
             contentType: 'audio/wav',
         });
-
+        console.log("COMECEI", new Date(Date.now()))
         // Envia o arquivo para a API usando Axios
         return axios.post(this.apiUrl, form, {
             headers: {
@@ -26,6 +26,7 @@ class AudioUploader {
             },
         }).then((responseData) => {
             console.log('Resposta da API:', responseData.data);
+            console.log("TERMINEI", new Date(Date.now()))
             fs.unlinkSync(audioFilePath);
             fs.unlinkSync(audioOriginalFilePath);
             return responseData.data;

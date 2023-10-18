@@ -6,6 +6,9 @@ require('dotenv').config();
 
 const PrivateMessage = require('./service/PrivateMessage');
 const CommandHandler = require('./handlers/commandHandler');
+const DisableCommand = require('./middleware/DisableCommand');
+const messageHandler = require('./handlers/messageHandler');
+const InstagramReelsUseCase = require('./useCases/InstagramReelsUseCase')
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -21,11 +24,21 @@ client.on('ready', () => {
 });
 
 client.on('message', async msg => {
+
     const command = msg.body.split(' ')[0];
     let chat = await msg.getChat();
 
+    if (isHttpsLink(command)) {
+        messageHandler.handle(msg, client, InstagramReelsUseCase);
+        return;
+    }
+    // if (await DisableCommand(chat.id.user)) {
+    //     console.log("Grupo com comandos desativos", await DisableCommand(chat.id.user))
+    //     return;
+    // }
+
     if (!chat.isGroup) {
-        await handlePrivateMessage(msg);
+        await handlePrivateMessage(msg, client);
 
     } else {
 
@@ -43,11 +56,18 @@ client.on('message', async msg => {
 
 client.initialize();
 
-const handlePrivateMessage = async (msg) => {
+const handlePrivateMessage = async (msg, client) => {
     try {
-        const privateMessageHandler = new PrivateMessage();
+        const privateMessageHandler = new PrivateMessage(client);
         await privateMessageHandler.runner(msg);
     } catch (error) {
         console.error('Erro ao lidar com a mensagem privada:', error);
     }
+}
+
+function isHttpsLink(str) {
+
+    const httpsLinkRegex = /^https:\/\/[^ "]+$/;
+
+    return httpsLinkRegex.test(str);
 }

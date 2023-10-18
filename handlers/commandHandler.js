@@ -1,12 +1,23 @@
 const { getSender } = require("../utils/utilitary");
 
-const { MessageMedia } = require('whatsapp-web.js');
+const { MessageMedia, MessageTypes } = require('whatsapp-web.js');
 const axios = require('axios')
 const { createFile, addInList, getList, deleteFile, addRule, getRulesList, editRule } = require('../clientRepository');
+const { MentionModel } = require("../db/models/MentionModel");
+const SoundFunnyApi = require("../service/SoundFunnyApi");
+const { Group } = require("../db/connection");
+const AudioTranscriber = require("../models/AudioTranscriber");
+const InstagramService = require("../service/InstagramService");
+const InstagramReelsUseCase = require("../useCases/InstagramReelsUseCase");
 
 class CommandHandler {
     constructor(client) {
         this.client = client
+        this.mentionModel = new MentionModel();
+        this.soundFunnyApiService = new SoundFunnyApi();
+        this.groupModel = new Group();
+        this.audioTranscriber = new AudioTranscriber();
+        this.instagramService = new InstagramService();
     }
 
     async '!balinha'(msg) {
@@ -14,30 +25,120 @@ class CommandHandler {
         await chat.sendMessage(`Aí é com o famoso @558774006609` + " 😉", { mentions: ["558774006609@c.us"] });
     }
 
-    async '@everyone'(msg) {
-        const chat = await msg.getChat();
-        let text = "";
-        let mentions = [];
+    // async '@everyone'(msg) {
+    //     const chat = await msg.getChat();
+    //     let text = "";
+    //     let mentions = [];
+    //     console.log("gtupo proibido", chat.id.user == '120363177489507909')
+    //     if (chat.id.user == '120363177489507909') return;
 
-        for (let participant of chat.participants) {
-            const contact = await client.getContactById(participant.id._serialized);
-            mentions.push(contact);
-            text += `@${participant.id.user} `;
+    //     for (let participant of chat.participants) {
+    //         const contact = await this.client.getContactById(participant.id._serialized);
+    //         mentions.push(contact);
+    //         text += `@${participant.id.user} `;
+    //     }
+
+    //     await chat.sendMessage(text, { mentions });
+    // }
+
+    // async '@todes'(msg) {
+    //     this['@everyone'](msg);
+    // }
+
+    // async '@here'(msg) {
+    //     this['@everyone'](msg);
+    // }
+
+    // async '@channel'(msg) {
+    //     this['@everyone'](msg);
+    // }
+
+    async '!disableGroup'(msg) {
+        // let argument = msg.body.replace('!disableGroup', "");
+        let chat = await msg.getChat()
+
+        console.log(chat.id.user == '120363177489507909')
+        console.log(chat.id)
+        const result = await this.groupModel.save({
+            idExternal: chat.id.user,
+            disableCommand: true
+        })
+        console.log(result)
+    }
+
+    async '!transcrever'(msg) {
+        const quotedMsg = await msg.getQuotedMessage();
+        // let argument = msg.body.replace('!disableGroup', "");
+        if (!quotedMsg) {
+            console.log('n respondeu nenhum audio')
+            return;
         }
+        console.log(quotedMsg.type, "tipo da mensagem")
+        if (quotedMsg.type === MessageTypes.AUDIO || quotedMsg.type === MessageTypes.VOICE) {
+            await quotedMsg.reply("Transcrevendo audio...");
+            const data = await quotedMsg.downloadMedia()
+            const text = await this.audioTranscriber.run(data);
 
-        await chat.sendMessage(text, { mentions });
+            await quotedMsg.reply(text); 0
+        }
     }
 
-    async '@todes'(msg) {
-        this['@everyone'](msg);
+    async '!audio'(msg) {
+        console.log("entrou", new Date())
+        const quotedMsg = await msg.getQuotedMessage();
+        console.log("quotedMsg", quotedMsg)
+        let argument = msg.body.replace('!audio', "");
+        if (!argument) return
+
+        try {
+            const pathSoundFunny = await this.soundFunnyApiService.getPath(argument)
+            console.log('sound funny', pathSoundFunny)
+            if (!pathSoundFunny.ok) {
+                if (quotedMsg) await quotedMsg.reply(pathSoundFunny.message)
+                else await msg.reply(pathSoundFunny.message);
+                return;
+            }
+            const { data } = await axios.get(`https://www.myinstants.com${pathSoundFunny.soundPath}`, { responseType: 'arraybuffer' });
+
+            const returnedB64 = Buffer.from(data).toString('base64');
+            const audio = new MessageMedia("audio/mp3", returnedB64, "audio.mp3");
+
+            if (quotedMsg) await quotedMsg.reply(audio, null, { sendAudioAsVoice: true });
+            else await msg.reply(audio, null, { sendAudioAsVoice: true });
+        } catch (e) {
+            console.log(e)
+            if (quotedMsg) await quotedMsg.reply("❌ Não foi possível baixar o audio");
+            else await msg.reply("❌ Não foi possível baixar o audio");
+        }
+        console.log("terminou", new Date())
     }
 
-    async '@here'(msg) {
-        this['@everyone'](msg);
-    }
 
-    async '@channel'(msg) {
-        this['@everyone'](msg);
+    async '!a'(msg) {
+        console.log("entrou", new Date())
+        const quotedMsg = await msg.getQuotedMessage();
+        console.log("quotedMsg", quotedMsg)
+        let argument = msg.body.replace('!a', "");
+        if (!argument) return
+
+        try {
+            const responseSoundFunnyApi = await this.soundFunnyApiService.getSoundBase64(argument)
+            console.log('sound funny', responseSoundFunnyApi.ok)
+            if (!responseSoundFunnyApi.ok) {
+                if (quotedMsg) await quotedMsg.reply(responseSoundFunnyApi.message)
+                else await msg.reply(responseSoundFunnyApi.message);
+                return;
+            }
+            const audio = new MessageMedia("audio/mp3", responseSoundFunnyApi.soundBase64, "audio.mp3");
+
+            if (quotedMsg) await quotedMsg.reply(audio, null, { sendAudioAsVoice: true });
+            else await msg.reply(audio, null, { sendAudioAsVoice: true });
+        } catch (e) {
+            console.log(e)
+            if (quotedMsg) await quotedMsg.reply("❌ Não foi possível baixar o audio");
+            else await msg.reply("❌ Não foi possível baixar o audio");
+        }
+        console.log("terminou", new Date())
     }
 
     async '!sticker'(msg) {
@@ -64,47 +165,90 @@ class CommandHandler {
             }
         }
     }
+
+    async '!insta'(msg) {
+        console.log("insta command handler")
+        const sender = getSender(msg)
+        const link = msg.body.replace('!insta', "");
+        console.log(msg.type)
+        if (msg.type === "chat") {
+
+            const video = await InstagramReelsUseCase.execute(link);
+            if (!video) {
+                msg.reply("❌ Erro ao processar o link");
+                return;
+            }
+            await msg.reply(video);
+        }
+    }
+
     async '!create'(msg) {
         try {
             let argument = "";
             if (msg.body.includes("-a")) argument = msg.body.substring(msg.body.indexOf("-a") + 2).trim();
 
-            createFile(msg.body.split(" ")[1], argument);
+            await this.mentionModel.save({
+                title: msg.body.split(" ")[1],
+                grupoId: argument,
+                users: [],
+            });
+
+            const sender = getSender(msg);
             this.client.sendMessage(sender, "Lista Criada com Sucesso!");
         } catch (error) {
             msg.reply("❌ Erro ao criar lista");
         }
     }
 
-    async '!add'(msg) {
-        try {
-            const users = await msg.getMentions();
-            const sender = getSender(msg);
-            addInList(msg.body.split(" ")[1], users);
-            this.client.sendMessage(sender, `Dados adicionados com sucesso!`);
-        } catch (error) {
-            msg.reply("❌ Erro ao adicionar na lista");
-        }
-    }
 
-    async '!delete'(msg) {
-        try {
-            const sender = getSender(msg);
-            deleteFile(msg.body.split(" ")[1]);
-            this.client.sendMessage(sender, "Lista deletada com Sucesso!");
-        } catch (error) {
-            msg.reply("❌ Erro ao deletar lista");
-        }
-    }
+    // async '!add'(msg) {
+    //     try {
+    //         const users = await msg.getMentions();
+    //         const sender = getSender(msg);
 
-    async '@go'(msg) {
-        try {
-            const fileName = msg.body.split(" ")[1];
-            this.userMentions(fileName, msg);
-        } catch (error) {
-            msg.reply("❌ Erro ao mencionar usuários da lista");
-        }
-    }
+    //         const mention = await this.mentionModel.find(msg.body.split(" ")[1]);
+
+    //         if (!mention) {
+    //             this.client.sendMessage(sender, "Lista não encontrada.");
+    //             return;
+    //         }
+
+    //         mention.users.push(...users);
+    //         await mention.save();
+
+    //         this.client.sendMessage(sender, "Dados adicionados com sucesso!");
+    //     } catch (error) {
+    //         msg.reply("❌ Erro ao adicionar na lista");
+    //     }
+    // }
+
+    // async '!delete'(msg) {
+    //     try {
+    //         const sender = getSender(msg);
+
+    //         const mention = await Mention.findOne({ title: msg.body.split(" ")[1] });
+
+    //         if (!mention) {
+    //             this.client.sendMessage(sender, "Lista não encontrada.");
+    //             return;
+    //         }
+
+    //         await mention.remove();
+
+    //         this.client.sendMessage(sender, "Lista deletada com Sucesso!");
+    //     } catch (error) {
+    //         msg.reply("❌ Erro ao deletar lista");
+    //     }
+    // }
+
+    // async '@go'(msg) {
+    //     try {
+    //         const fileName = msg.body.split(" ")[1];
+    //         this.userMentions(fileName, msg);
+    //     } catch (error) {
+    //         msg.reply("❌ Erro ao mencionar usuários da lista");
+    //     }
+    // }
 
     async '!rules'(msg) {
         try {

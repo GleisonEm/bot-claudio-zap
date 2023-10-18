@@ -7,11 +7,6 @@
     "test": "node ./index.js",
     "startWatch": "nodemon ./index.js"
   },
-  "nodemonConfig": {
-    "ignore": [
-      "config.js"
-    ]
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,7 +18,8 @@
     "jimp": "^0.22.10",
     "mongoose": "^7.5.2",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "github:gleisonem/zap-bot-js"
+    "whatsapp-web.js": "github:gleisonem/zap-bot-js",
+    "insta-scrapper-media": "github:gleisonem/insta-scrapper-media"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

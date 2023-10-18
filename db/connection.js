@@ -13,6 +13,33 @@ const ConverseSchema = new mongoose.Schema({
     from: String,
 });
 
-const Converse = mongoose.model('Converses', ConverseSchema);
+const mentionSchema = new mongoose.Schema({
+    title: String,
+    grupoId: String,
+    users: [
+        {
+            id: String,
+            serialized: String,
+        },
+    ],
+});
 
-module.exports = { Converse };
+const AudioMemeSchema = new mongoose.Schema({
+    title: String,
+    url: String,
+});
+
+const GroupSchema = new mongoose.Schema({
+    idExternal: String,
+    disableCommand: {
+        type: Boolean,
+        default: false,
+    }
+});
+
+const Group = mongoose.model('Groups', GroupSchema);
+const Converse = mongoose.model('Converses', ConverseSchema);
+const Mention = mongoose.model('Mentions', mentionSchema);
+const AudioMeme = mongoose.model('AudioMemes', AudioMemeSchema);
+
+module.exports = { Converse, Mention, AudioMeme, Group };
