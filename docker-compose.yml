@@ -1,0 +1,28 @@
+version: "3.5"
+services:
+  api: # API - Instância 01
+    image: gemanueldev/node-bot-zap:latest
+    hostname: api
+    # command: bash -c "npm run knex"
+    expose:
+      - "8988"
+    environment:
+      - API_PORT=8988
+    networks:
+      - node-zap
+  nginx: # Load Balancer
+    image: nginx:latest
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+    ports:
+      - "6666:6666"
+    environment:
+      - API_PORT=8988
+      - SERVER_PORT=6666
+    networks:
+      - node-zap
+
+networks:
+  node-zap:
