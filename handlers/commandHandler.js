@@ -7,8 +7,8 @@ const { MentionModel } = require("../db/models/MentionModel");
 const SoundFunnyApi = require("../service/SoundFunnyApi");
 const { Group } = require("../db/connection");
 const AudioTranscriber = require("../models/AudioTranscriber");
-const InstagramService = require("../service/InstagramService");
 const InstagramReelsUseCase = require("../useCases/InstagramReelsUseCase");
+const YoutubeVideoUseCase = require("../useCases/YoutubeVideoUseCase");
 
 class CommandHandler {
     constructor(client) {
@@ -17,7 +17,6 @@ class CommandHandler {
         this.soundFunnyApiService = new SoundFunnyApi();
         this.groupModel = new Group();
         this.audioTranscriber = new AudioTranscriber();
-        this.instagramService = new InstagramService();
     }
 
     async '!balinha'(msg) {
@@ -179,6 +178,22 @@ class CommandHandler {
                 return;
             }
             await msg.reply(video);
+        }
+    }
+
+    async '!youtube'(msg) {
+        console.log("youtube command handler")
+        const link = msg.body.replace('!youtube', "");
+        console.log(msg.type)
+        if (msg.type === "chat") {
+            await msg.react('⌛')
+            const video = await YoutubeVideoUseCase.execute(link);
+            if (!video) {
+                await msg.react('❌');
+                return;
+            }
+            await msg.reply(video);
+            await msg.react('✅');
         }
     }
 

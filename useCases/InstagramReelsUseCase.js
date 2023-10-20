@@ -7,8 +7,7 @@ module.exports = {
             const data = await (new InstagramService()).getReelsBase64(link);
             console.log(data)
             if (!data.ok) {
-                await msg.react('❌');
-                return;
+                return null
             }
 
             return new MessageMedia("video/mp4", data.videoBase64, "video.mp4");

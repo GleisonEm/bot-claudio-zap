@@ -10,6 +10,9 @@ const DisableCommand = require('./middleware/DisableCommand');
 const messageHandler = require('./handlers/messageHandler');
 const InstagramReelsUseCase = require('./useCases/InstagramReelsUseCase');
 const TiktokVideoUseCase = require('./useCases/TiktokVideoUseCase');
+const TwitterVideoUseCase = require('./useCases/TwitterVideoUseCase');
+const YoutubeService = require('./service/YoutubeService');
+const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -67,12 +70,12 @@ const handlePrivateMessage = async (msg, client) => {
     }
 }
 
-function isHttpsLink(str) {
+// function isHttpsLink(str) {
 
-    const httpsLinkRegex = /^https:\/\/[^ "]+$/;
+//     const httpsLinkRegex = /^https:\/\/[^ "]+$/;
 
-    return httpsLinkRegex.test(str);
-}
+//     return httpsLinkRegex.test(str);
+// }
 
 function getSocialMediaType(link) {
     if (link.includes('tiktok.com')) {
@@ -82,6 +85,14 @@ function getSocialMediaType(link) {
     if (link.includes('instagram.com')) {
         return InstagramReelsUseCase;
     }
+
+    if (link.includes('x.com') || link.includes('twitter.com')) {
+        return TwitterVideoUseCase;
+    }
+
+    // if (link.includes('//youtu.be') || link.includes('//www.youtube.com')) {
+    //     return YoutubeVideoUseCase;
+    // }
 
     return null
 }

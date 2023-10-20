@@ -14,9 +14,8 @@ module.exports = {
             console.log("link tiktok", link)
             const data = await getVideoWM(link);
             console.log("getbase54", data)
-            if (!data.url) {
-                msg.react('❌');
-                return;
+            if (!data.ok) {
+                return null
             }
 
             const dataVideo = await downloadBase64(data.url);
