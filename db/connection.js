@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://root:123456@159.223.198.152:27017/botwhats?authSource=admin', {
+mongoose.connect(
+    `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/botwhats?authSource=admin`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
