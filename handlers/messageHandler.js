@@ -8,8 +8,8 @@ module.exports = {
             const sender = getSender(msg)
             console.log(msg.body, "messagehandler")
             const response = await useCase.execute(msg.body);
-
             await msg.reply(response);
+            msg.react('✅')
         } catch (e) {
             console.log(e)
             msg.react('❌');

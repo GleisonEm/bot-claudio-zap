@@ -13,6 +13,7 @@ const TiktokVideoUseCase = require('./useCases/TiktokVideoUseCase');
 const TwitterVideoUseCase = require('./useCases/TwitterVideoUseCase');
 const YoutubeService = require('./service/YoutubeService');
 const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
+const { removeAccents } = require('./utils/utilitary');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -28,19 +29,21 @@ client.on('ready', () => {
 });
 
 client.on('message', async msg => {
-
-    const command = msg.body.split(' ')[0];
+    const command = formattedCommand(msg.body)
     let chat = await msg.getChat();
+    // if (await DisableCommand(chat.id.user, await msg.getContact())) {
+    //     console.log("Grupo com comandos desativados")
 
+    //     if ((await msg.getContact()).contact.number !== process.env.OWNER) {
+    //         if (msg.body.includes('!')) msg.react('⛔')
+    //         return;
+    //     }
+    // }
     const useCase = getSocialMediaType(command)
     if (useCase) {
         messageHandler.handle(msg, client, useCase);
         return;
     }
-    // if (await DisableCommand(chat.id.user)) {
-    //     console.log("Grupo com comandos desativos", await DisableCommand(chat.id.user))
-    //     return;
-    // }
 
     if (!chat.isGroup) {
         await handlePrivateMessage(msg, client);
@@ -95,4 +98,10 @@ function getSocialMediaType(link) {
     // }
 
     return null
+}
+
+function formattedCommand(msg) {
+
+    const command = msg.split(' ')[0];
+    return removeAccents(command.toLowerCase());
 }

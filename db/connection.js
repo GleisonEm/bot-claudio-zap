@@ -31,7 +31,7 @@ const AudioMemeSchema = new mongoose.Schema({
 });
 
 const GroupSchema = new mongoose.Schema({
-    idExternal: String,
+    externalId: String,
     disableCommand: {
         type: Boolean,
         default: false,

@@ -6,22 +6,43 @@ class GroupModel {
 
         return await newGroup.save();
     }
-    async update(state, chatId) {
-        const update = { state: state };
-        const filter = { from: chatId };
-
-        await Group.findOneAndUpdate(filter, update);
+    async updateDisableCommand(groupId, disabled) {
+        return Group.updateOne({ externalId: groupId }, { disableCommand: !disabled })
+            .then(() => true).catch((err) => {
+                console.log('updateDisableCommand', err);
+                return false;
+            });
     }
-    async isDisableCommands(groupId) {
+    // async findOneAndReplaceOrSave(groupId, data) {
+    //     const filter = { externalId: groupId };
+
+    //     return Group.findOneAndReplace(filter, data).then((doc) => {
+    //         console.log("find disable commands", doc, groupId)
+    //         return doc
+    //     }).catch((err) => {
+    //         console.log(err);
+    //         return false;
+    //     });
+    // }
+    async find(groupId) {
         const filter = { externalId: groupId };
 
-        const find = await Group.findOne(filter);
-        console.log("find disable commands", find)
-        if (!find) {
+        return Group.findOne(filter).then((doc) => {
+            console.log("find group", doc, groupId)
+            return doc
+        }).catch((err) => {
+            console.log(err);
             return false;
-        }
-
-        return find.disableCommand;
+        });
+    }
+    async isDisableCommands(groupId) {
+        return Group.findOne({ externalId: groupId }).then((doc) => {
+            console.log("find disable commands", doc, groupId)
+            return true
+        }).catch((err) => {
+            console.log(err);
+            return false;
+        });
     }
 }
 

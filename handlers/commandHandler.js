@@ -5,20 +5,24 @@ const axios = require('axios')
 const { createFile, addInList, getList, deleteFile, addRule, getRulesList, editRule } = require('../clientRepository');
 const { MentionModel } = require("../db/models/MentionModel");
 const SoundFunnyApi = require("../service/SoundFunnyApi");
-const { Group } = require("../db/connection");
 const AudioTranscriber = require("../models/AudioTranscriber");
 const InstagramReelsUseCase = require("../useCases/InstagramReelsUseCase");
 const YoutubeVideoUseCase = require("../useCases/YoutubeVideoUseCase");
+const { GroupModel } = require("../db/models/GroupModel");
 
 class CommandHandler {
     constructor(client) {
         this.client = client
         this.mentionModel = new MentionModel();
         this.soundFunnyApiService = new SoundFunnyApi();
-        this.groupModel = new Group();
+        this.groupModel = new GroupModel();
         this.audioTranscriber = new AudioTranscriber();
     }
 
+    async '!chats'(msg) {
+        const chat = await msg.getChat();
+        console.log(chat)
+    }
     async '!balinha'(msg) {
         const chat = await msg.getChat();
         await chat.sendMessage(`Aí é com o famoso @558774006609` + " 😉", { mentions: ["558774006609@c.us"] });
@@ -52,17 +56,44 @@ class CommandHandler {
     //     this['@everyone'](msg);
     // }
 
-    async '!disableGroup'(msg) {
+    async '!disablegroup'(msg) {
         // let argument = msg.body.replace('!disableGroup', "");
-        let chat = await msg.getChat()
+        const contact = await msg.getContact();
 
+        if (contact.number !== process.env.OWNER) {
+            await msg.react('❌')
+            return;
+        }
+
+        console.log(msg.from, msg.to, getSender(msg))
+        let chat = await msg.getChat()
         console.log(chat.id.user == '120363177489507909')
         console.log(chat.id)
-        const result = await this.groupModel.save({
-            idExternal: chat.id.user,
-            disableCommand: true
+
+        this.groupModel.find(chat.id.user).then((doc) => {
+            if (!doc) {
+                return this.groupModel.save({ externalId: chat.id.user, disableCommand: true })
+                    .then(() => msg.react('✅')).catch((err) => {
+                        console.log('errr findOneAndReplaceOrSave', err)
+                        return msg.react('❌')
+                    })
+            } else {
+                this.groupModel.updateDisableCommand(chat.id.user, doc.disableCommand)
+                    .then(() => msg.react('✅')).catch((err) => {
+                        console.log('errr findOneAndReplaceOrSave', err)
+                        return msg.react('❌')
+                    })
+            }
+
+
+        }).catch((e) => {
+            console.log('asdsada', e)
+            msg.react('❌')
         })
-        console.log(result)
+        // this.groupModel.save({
+        //     externalId: chat.id.user,
+        //     disableCommand: true
+        // })
     }
 
     async '!transcrever'(msg) {
