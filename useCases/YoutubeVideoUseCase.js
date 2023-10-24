@@ -2,6 +2,7 @@ const { MessageMedia } = require('whatsapp-web.js');
 const YoutubeService = require("../service/YoutubeService");
 
 module.exports = {
+    associatedCommand: '!youtube',
     async execute(link) {
         try {
             console.log("link youtube", link)
