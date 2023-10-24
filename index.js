@@ -13,8 +13,9 @@ const TiktokVideoUseCase = require('./useCases/TiktokVideoUseCase');
 const TwitterVideoUseCase = require('./useCases/TwitterVideoUseCase');
 const YoutubeService = require('./service/YoutubeService');
 const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
-const { removeAccents } = require('./utils/utilitary');
 const { list } = require('./models/CommandList');
+const { removeAccents, isCommand } = require('./utils/utilitary');
+const rateLimitMiddleware = require('./middleware/RateLimit');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -31,7 +32,28 @@ client.on('ready', () => {
 
 client.on('message', async msg => {
     const command = formattedCommand(msg.body)
+    const senderNumber = (await msg.getContact()).number
     let chat = await msg.getChat();
+
+    if (isCommand(command)) {
+        const rateLimitAllowed = rateLimitMiddleware.allowed(command, senderNumber)
+
+        console.log({ rateLimitAllowed })
+
+        if (!rateLimitAllowed) {
+            console.log(`[RATE LIMIT] command "${command}" not allowed for user ${senderNumber}`)
+            msg.react('⛔')
+            return false
+        }
+
+        const commandHandler = new CommandHandler(client);
+
+        if (typeof commandHandler[command] === 'function') {
+            commandHandler[command](msg, client);
+            return true
+        }
+    }
+
     // if (await DisableCommand(chat.id.user, await msg.getContact())) {
     //     console.log("Grupo com comandos desativados")
 
@@ -41,7 +63,17 @@ client.on('message', async msg => {
     //     }
     // }
     const useCase = getSocialMediaType(command)
+
     if (useCase) {
+        if (
+            useCase.hasOwnProperty('associatedCommand') &&
+            !rateLimitMiddleware.allowed(useCase.associatedCommand, senderNumber)
+        ) {
+            console.log(`[RATE LIMIT] command "${command}" not allowed for user ${senderNumber}`)
+            msg.react('⛔')
+            return
+        }
+
         messageHandler.handle(msg, client, useCase);
         return;
     }
@@ -50,13 +82,6 @@ client.on('message', async msg => {
         await handlePrivateMessage(msg, client);
         return;
     }
-
-    const commandHandler = new CommandHandler(client);
-
-    if (typeof commandHandler[command] === 'function') {
-        commandHandler[command](msg, client);
-    }
-
 })
 
 // client.on('message_create', async msg => {
