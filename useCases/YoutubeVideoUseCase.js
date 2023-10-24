@@ -12,11 +12,13 @@ module.exports = {
             }
             console.log("url trans", response.url)
 
-            const data = await YoutubeService.downloadBase64(response.url);
+            // const data = await YoutubeService.downloadBase64(response.url);
 
-            if (!data.ok) return null
+            // if (!data.ok) return null
 
-            return new MessageMedia("video/mp4", data.videoBase64, "video.mp4");
+            return [
+                await MessageMedia.fromUrl(response.url, { unsafeMime: true })
+            ];
         } catch (e) {
             console.log(e)
             return null

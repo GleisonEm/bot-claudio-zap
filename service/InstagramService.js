@@ -37,6 +37,34 @@ class InstagramService {
             };
         });
     }
+    async getReelsUrl(
+        url
+    ) {
+        try {
+            console.log("insta url", url)
+            const urlFormatted = url.replace(' ', '');
+            const response = await instagramDl(urlFormatted);
+            let data = response[0]
+
+            if (!data.download_link) {
+                return {
+                    message: "❌ Erro ao buscar o reels",
+                    ok: false
+                };
+            }
+
+            return {
+                ok: true,
+                url: data.download_link
+            }
+        } catch (e) {
+            console.log('error ao nbuscar reels', e)
+            return {
+                message: "❌ Erro ao buscar o reels",
+                ok: false
+            };
+        }
+    }
 }
 
 module.exports = InstagramService;

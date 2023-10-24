@@ -124,8 +124,8 @@ class CommandHandler {
             const pathSoundFunny = await this.soundFunnyApiService.getPath(argument)
             console.log('sound funny', pathSoundFunny)
             if (!pathSoundFunny.ok) {
-                if (quotedMsg) await quotedMsg.react(pathSoundFunny.message)
-                else await msg.react(pathSoundFunny.message);
+                if (quotedMsg) await quotedMsg.react('❌');
+                else await msg.react('❌');
                 return;
             }
             const { data } = await axios.get(`https://www.myinstants.com${pathSoundFunny.soundPath}`, { responseType: 'arraybuffer' });
@@ -145,38 +145,47 @@ class CommandHandler {
 
 
     async '!a'(msg) {
+        const sender = getSender(msg)
         console.log("entrou", new Date())
         const quotedMsg = await msg.getQuotedMessage();
         console.log("quotedMsg", quotedMsg)
         let argument = msg.body.replace('!a', "");
-        if (!argument) return
 
-        try {
-            const responseSoundFunnyApi = await this.soundFunnyApiService.getSoundBase64(argument)
-            console.log('sound funny', responseSoundFunnyApi.ok)
-            if (!responseSoundFunnyApi.ok) {
-                if (quotedMsg) await quotedMsg.reply(responseSoundFunnyApi.message)
-                else await msg.reply(responseSoundFunnyApi.message);
-                return;
-            }
-            const audio = new MessageMedia("audio/mp3", responseSoundFunnyApi.soundBase64, "audio.mp3");
+        const media = await MessageMedia.fromUrl('https://geea-storage.nyc3.cdn.digitaloceanspaces.com/2023-05-18%2007-46-09.mp4')
+        await msg.reply(' ', null, { media: media });
+        // if (!argument) return
 
-            if (quotedMsg) await quotedMsg.reply(audio, null, { sendAudioAsVoice: true });
-            else await msg.reply(audio, null, { sendAudioAsVoice: true });
-        } catch (e) {
-            console.log(e)
-            if (quotedMsg) await quotedMsg.react('❌');
-            else await msg.react('❌');
-        }
-        console.log("terminou", new Date())
+        // try {
+        //     const responseSoundFunnyApi = await this.soundFunnyApiService.getSoundBase64(argument)
+        //     console.log('sound funny', responseSoundFunnyApi.ok)
+        //     if (!responseSoundFunnyApi.ok) {
+        //         if (quotedMsg) await quotedMsg.reply(responseSoundFunnyApi.message)
+        //         else await msg.reply(responseSoundFunnyApi.message);
+        //         return;
+        //     }
+        //     const audio = new MessageMedia("audio/mp3", responseSoundFunnyApi.soundBase64, "audio.mp3");
+
+        //     if (quotedMsg) await quotedMsg.reply(audio, null, { sendAudioAsVoice: true });
+        //     else await msg.reply(audio, null, { sendAudioAsVoice: true });
+        // } catch (e) {
+        //     console.log(e)
+        //     if (quotedMsg) await quotedMsg.react('❌');
+        //     else await msg.react('❌');
+        // }
+        // console.log("terminou", new Date())
     }
 
     async '!sticker'(msg) {
         const sender = getSender(msg)
-        if (msg.type === "image") {
+        const quotedMsg = await msg.getQuotedMessage();
+        console.log(msg.type)
+        const message = quotedMsg ? quotedMsg : msg;
+        if (message.type === "image") {
 
             try {
-                const { data } = await msg.downloadMedia();
+
+                const message = quotedMsg ? quotedMsg : msg;
+                const { data } = await message.downloadMedia();
                 const image = new MessageMedia("image/jpeg", data, "image.jpg");
                 await this.client.sendMessage(sender, image, { sendMediaAsSticker: true });
             } catch (e) {

@@ -4,15 +4,17 @@ const InstagramService = require("../service/InstagramService");
 module.exports = {
     async execute(link) {
         try {
-            const data = await (new InstagramService()).getReelsBase64(link);
+            const data = await (new InstagramService()).getReelsUrl(link);
             console.log(data)
             if (!data.ok) {
                 return null
             }
 
-            return new MessageMedia("video/mp4", data.videoBase64, "video.mp4");
+            return [
+                await MessageMedia.fromUrl(data.url, { unsafeMime: true })
+            ];
         } catch (e) {
-            console.log(e)
+            console.log('reels get insta error', e)
             return null
         }
     }

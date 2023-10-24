@@ -14,26 +14,26 @@ headersWm.append('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleW
 
 const getBase64Video = (url) => getVideoWM(url).then(async (data) => {
 
-        console.log(data)
-        
-        // download(data)
-        return await downloadBase64(data.url);
-    })
+    console.log(data)
+
+    // download(data)
+    return await downloadBase64(data.url);
+})
 
 const formatRedirectUrl = (url) => fetch(url)
     .then(response => {
-    // Verifica se houve redirecionamento
-    return {
-        ok: true,
-        url: response.url
-    }
+        // Verifica se houve redirecionamento
+        return {
+            ok: true,
+            url: response.url
+        }
     })
     .catch(error => {
-    console.error('Erro na solicitação de redirecionamento do tiktok:', error);
-    return {
-        ok: false,
-        url: null
-    }
+        console.error('Erro na solicitação de redirecionamento do tiktok:', error);
+        return {
+            ok: false,
+            url: null
+        }
     });
 
 const getVideoWM = async (url) => {

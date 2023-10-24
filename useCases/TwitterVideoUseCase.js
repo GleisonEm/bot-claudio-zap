@@ -6,13 +6,19 @@ module.exports = {
         try {
 
             console.log("link twitter", link)
-            const data = await (new TwitterService()).getUrl(link);
-
+            // const data = await (new TwitterService()).getUrl(link);
+            const data = await (new TwitterService()).getUrlWithoutLib(link);
+            console.log('data twitter', data)
             if (!data.ok) {
                 return null
             }
 
-            return await MessageMedia.fromUrl(data.url);
+            const media = await MessageMedia.fromUrl(data.url)
+            return [
+                data.text,
+                null,
+                { media: media }
+            ];
         } catch (e) {
             console.log(e)
             return null

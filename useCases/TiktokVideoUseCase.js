@@ -14,14 +14,16 @@ module.exports = {
             console.log("link tiktok", link)
             const data = await getVideoWM(link);
             console.log("getbase54", data)
-            if (!data.ok) {
+            if (!data.url) {
                 return null
             }
 
-            const dataVideo = await downloadBase64(data.url);
-            console.log(dataVideo)
+            // const dataVideo = await downloadBase64(data.url);
+            // console.log(dataVideo)
 
-            return new MessageMedia("video/mp4", dataVideo.videoBase64, "video.mp4");
+            return [
+                await MessageMedia.fromUrl(data.url, { unsafeMime: true })
+            ];
         } catch (e) {
             console.log(e)
             return null
