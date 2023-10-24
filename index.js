@@ -38,8 +38,6 @@ client.on('message', async msg => {
     if (isCommand(command)) {
         const rateLimitAllowed = rateLimitMiddleware.allowed(command, senderNumber)
 
-        console.log({ rateLimitAllowed })
-
         if (!rateLimitAllowed) {
             console.log(`[RATE LIMIT] command "${command}" not allowed for user ${senderNumber}`)
             msg.react('⛔')
