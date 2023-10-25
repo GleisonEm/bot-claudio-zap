@@ -2,7 +2,6 @@ const { MessageMedia } = require("whatsapp-web.js");
 const InstagramService = require("../service/InstagramService");
 
 module.exports = {
-    associatedCommand: '!instagram',
     async execute(link) {
         try {
             const data = await (new InstagramService()).getReelsUrl(link);

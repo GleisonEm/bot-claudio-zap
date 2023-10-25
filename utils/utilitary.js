@@ -8,11 +8,9 @@ const getSender = (msg) => {
     return msg.from.includes(process.env.BOT_NUMBER) ? msg.to : msg.from;
 }
 
-const removeAccents = (текст) => {
-    return текст.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const removeAccents = (texto) => {
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-const isCommand = (message) => message.startsWith("!")
-
 // Exemplo de uso
-module.exports = { getRandomInt, getSender, removeAccents, isCommand }
+module.exports = { getRandomInt, getSender, removeAccents }
