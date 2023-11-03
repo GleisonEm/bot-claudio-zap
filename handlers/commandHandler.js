@@ -1,4 +1,4 @@
-const { getSender } = require("../utils/utilitary");
+const { getSender, writeLog, summarizeText } = require("../utils/utilitary");
 
 const { MessageMedia, MessageTypes } = require('whatsapp-web.js');
 const axios = require('axios')
@@ -9,6 +9,7 @@ const AudioTranscriber = require("../models/AudioTranscriber");
 const InstagramReelsUseCase = require("../useCases/InstagramReelsUseCase");
 const YoutubeVideoUseCase = require("../useCases/YoutubeVideoUseCase");
 const { GroupModel } = require("../db/models/GroupModel");
+const InstagramStoryUseCase = require("../useCases/InstagramStoryUseCase");
 
 class CommandHandler {
     constructor(client) {
@@ -28,25 +29,30 @@ class CommandHandler {
         await chat.sendMessage(`Aí é com o famoso @558774006609` + " 😉", { mentions: ["558774006609@c.us"] });
     }
 
-    // async '@everyone'(msg) {
-    //     const chat = await msg.getChat();
-    //     let text = "";
-    //     let mentions = [];
-    //     console.log("gtupo proibido", chat.id.user == '120363177489507909')
-    //     if (chat.id.user == '120363177489507909') return;
+    async '@everyone'(msg) {
+        const chat = await msg.getChat();
+        let text = "";
+        let mentions = [];
+        console.log("gtupo proibido", chat.id.user == '558788237119-1623249851')
+        if (chat.id.user == '558788237119-1623249851') {
+            await msg.react('🚫')
+            return
+        };
 
-    //     for (let participant of chat.participants) {
-    //         const contact = await this.client.getContactById(participant.id._serialized);
-    //         mentions.push(contact);
-    //         text += `@${participant.id.user} `;
-    //     }
+        for (let participant of chat.participants) {
+            const contact = await this.client.getContactById(participant.id._serialized);
+            mentions.push(contact);
+            text += `@${participant.id.user} `;
+        }
 
-    //     await chat.sendMessage(text, { mentions });
-    // }
+        await chat.sendMessage(text, { mentions });
+    }
 
-    // async '@todes'(msg) {
-    //     this['@everyone'](msg);
-    // }
+    async '@todes'(msg) {
+        // const chats = await this.client.getChats()
+        // writeLog('getchats', JSON.stringify(chats))
+        this['@everyone'](msg);
+    }
 
     // async '@here'(msg) {
     //     this['@everyone'](msg);
@@ -184,7 +190,7 @@ class CommandHandler {
 
             try {
 
-                const message = quotedMsg ? quotedMsg : msg;
+                // const message = quotedMsg ? quotedMsg : msg;
                 const { data } = await message.downloadMedia();
                 const image = new MessageMedia("image/jpeg", data, "image.jpg");
                 await this.client.sendMessage(sender, image, { sendMediaAsSticker: true });
@@ -221,11 +227,31 @@ class CommandHandler {
         }
     }
 
+    async '!story'(msg) {
+        console.log("story command handler")
+        const sender = getSender(msg)
+        const link = msg.body.replace('!story', "");
+        console.log(msg.type)
+        if (msg.type === MessageTypes.TEXT) {
+            await msg.react('⌛')
+            const video = await InstagramStoryUseCase.execute(link);
+            if (!video) {
+                await msg.react('❌');
+                return;
+            }
+            await msg.reply(...video);
+        }
+    }
+
     async '!youtube'(msg) {
         console.log("youtube command handler")
-        const link = msg.body.replace('!youtube', "");
+        const quotedMsg = await msg.getQuotedMessage();
         console.log(msg.type)
-        if (msg.type === "chat") {
+        const message = quotedMsg ? quotedMsg : msg;
+        const link = quotedMsg ? message.body : message.body.replace('!youtube', "");
+
+        console.log("tipo da mensagem", message.type)
+        if (message.type === "chat") {
             await msg.react('⌛')
             const video = await YoutubeVideoUseCase.execute(link);
             if (!video) {
@@ -280,8 +306,9 @@ class CommandHandler {
         const parsedArray = arrayWithContacts.map(c => `${c.contact.name} disse: ${c.mensage}`)
 
         let text = parsedArray.join(",");
+        const resumeText = summarizeText(text, 3999)
 
-        const res = await api.sendMessage(`resuma da melhor forma possivel o assunto gerado em um grupo de whatsapp com as seguintes mensagens separadas por virgula: ${text}`)
+        const res = await api.sendMessage(`resuma da melhor forma possivel o assunto gerado em um grupo de whatsapp com as seguintes mensagens separadas por virgula: ${resumeText}`, { variant: 'Precise' })
         console.log("res", res, res.text)
         const cleanedRes = res.text.substring(res.text.indexOf(":") + 1).trim()
         await msg.reply(cleanedRes)

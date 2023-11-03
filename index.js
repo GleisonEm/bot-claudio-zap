@@ -14,6 +14,7 @@ const TwitterVideoUseCase = require('./useCases/TwitterVideoUseCase');
 const YoutubeService = require('./service/YoutubeService');
 const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
 const { removeAccents } = require('./utils/utilitary');
+const { list } = require('./models/CommandList');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -93,15 +94,22 @@ function getSocialMediaType(link) {
         return TwitterVideoUseCase;
     }
 
-    // if (link.includes('//youtu.be') || link.includes('//www.youtube.com')) {
-    //     return YoutubeVideoUseCase;
-    // }
+    if (link.includes('//youtu.be') || link.includes('//www.youtube.com') || link.includes('//youtube.com')) {
+        return YoutubeVideoUseCase;
+    }
 
     return null
 }
 
 function formattedCommand(msg) {
+    let command = Object.keys(list).find(command => msg.includes(command));
 
-    const command = msg.split(' ')[0];
+
+    if (command) {
+        return command.toLowerCase()
+    }
+
+    command = msg.split(' ')[0];
+    console.log('command', command)
     return removeAccents(command.toLowerCase());
 }
