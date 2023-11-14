@@ -134,10 +134,11 @@ class CommandHandler {
                 else await msg.react('❌');
                 return;
             }
-            const { data } = await axios.get(`https://www.myinstants.com${pathSoundFunny.soundPath}`, { responseType: 'arraybuffer' });
+            // const { data } = await axios.get(`https://www.myinstants.com${pathSoundFunny.soundPath}`, { responseType: 'arraybuffer' });
 
-            const returnedB64 = Buffer.from(data).toString('base64');
-            const audio = new MessageMedia("audio/mp3", returnedB64, "audio.mp3");
+            // const returnedB64 = Buffer.from(data).toString('base64');
+            // const audio = new MessageMedia("audio/mp3", returnedB64, "audio.mp3");
+            const audio = await MessageMedia.fromUrl(`https://www.myinstants.com${pathSoundFunny.soundPath}`)
 
             if (quotedMsg) await quotedMsg.reply(audio, null, { sendAudioAsVoice: true });
             else await msg.reply(audio, null, { sendAudioAsVoice: true });

@@ -2,14 +2,14 @@ const axios = require('axios');
 
 class SoundFunnyApi {
     constructor() {
-        // this.apiUrl = 'http://159.223.198.152:8003/';
-        this.apiUrl = 'http://159.223.198.152:8003/';
+        this.apiUrl = 'http://159.223.198.152:8003/search';
+        // this.apiUrl = process.env.SOUND_FUNNY_ENTRYPOINT;
     }
     async getPath(
         term
     ) {
         console.log(term)
-        return axios.get(this.apiUrl + `search?name=${term}`,).then((responseData) => {
+        return axios.get(this.apiUrl + `?name=${term}`,).then((responseData) => {
             console.log('Resposta da API:', responseData.status);
 
             if (!responseData.data.soundPath.includes("/")) {
