@@ -2,8 +2,8 @@ const axios = require('axios');
 
 class SoundFunnyApi {
     constructor() {
-        this.apiUrl = 'http://159.223.198.152:8003/search';
-        // this.apiUrl = process.env.SOUND_FUNNY_ENTRYPOINT;
+        // this.apiUrl = 'http://159.223.198.152:8003/search';
+        this.apiUrl = process.env.SOUND_FUNNY_ENTRYPOINT;
     }
     async getPath(
         term
