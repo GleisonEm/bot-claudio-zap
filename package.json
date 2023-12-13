@@ -9,7 +9,8 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "config.js"
+      "config.js",
+      "logs/**"
     ]
   },
   "keywords": [],

@@ -4,7 +4,7 @@ const InstagramService = require("../service/InstagramService");
 module.exports = {
     async execute(link) {
         try {
-            const data = await (new InstagramService()).getReelsUrl(link);
+            const data = await (new InstagramService()).getStoryUrl(link);
             console.log(data)
             if (!data.ok) {
                 return null
