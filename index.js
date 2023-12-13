@@ -15,6 +15,7 @@ const YoutubeService = require('./service/YoutubeService');
 const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
 const { removeAccents } = require('./utils/utilitary');
 const { list } = require('./models/CommandList');
+const allowedGroup = require('./middleware/GroupMiddleware');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -30,6 +31,11 @@ client.on('ready', () => {
 });
 
 client.on('message', async msg => {
+
+    if (!allowedGroup(msg.from)) {
+        return;
+    }
+
     const command = formattedCommand(msg.body)
     let chat = await msg.getChat();
     // if (await DisableCommand(chat.id.user, await msg.getContact())) {
