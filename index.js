@@ -16,6 +16,7 @@ const YoutubeVideoUseCase = require('./useCases/YoutubeVideoUseCase');
 const { list } = require('./models/CommandList');
 const { removeAccents, isCommand } = require('./utils/utilitary');
 const rateLimitMiddleware = require('./middleware/RateLimit');
+const allowedGroup = require('./middleware/Group');
 
 // const client = new Client({
 //     authStrategy: new LocalAuth(),
@@ -31,6 +32,11 @@ client.on('ready', () => {
 });
 
 client.on('message', async msg => {
+    if (!allowedGroup(msg.from)) {
+        console.log('comandos desligados fora do grupo certo')
+        return;
+    }
+
     const command = formattedCommand(msg.body)
     const senderNumber = (await msg.getContact()).number
     let chat = await msg.getChat();
