@@ -13,7 +13,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js'); // Substitua 'sua-lib-
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { headless: true, args: ['--no-sandbox'], executablePath: '/usr/bin/chromium-browser', }
+    puppeteer: { headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'], executablePath: '/usr/bin/chromium-browser', }
 });
 
 
