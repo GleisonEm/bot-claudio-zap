@@ -1,7 +1,7 @@
 const qrcode = require('qrcode-terminal');
 const client = require('./config/client'); // Importe a autenticação
 
-require('dotenv').config();
+require('dotenv').config({ path: '/home/ubuntu/bot-claudio-zap/.env' });
 
 
 const PrivateMessage = require('./service/PrivateMessage');
